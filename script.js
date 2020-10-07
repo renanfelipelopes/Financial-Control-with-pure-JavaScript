@@ -2,6 +2,9 @@ const transactionUl = document.querySelector("#transactions");
 const incomeDisplay = document.querySelector("#money-plus");
 const expanseDisplay = document.querySelector("#money-minus");
 const balanceDisplay = document.querySelector("#balance");
+const form = document.querySelector("#form");
+const inputTransactionName = document.querySelector("#text");
+const inputTransactionAmount = document.querySelector("#amount");
 
 const dummyTransactions = [
     {id: 1, name: 'Bolo de brigadeiro', amount: -20},
@@ -48,9 +51,42 @@ const updateBalanceValues = () => {
     expanseDisplay.textContent = `R$ ${expanse}`;
 }
 
+//itera pelos arrays das transacoes, e para cada item desse array ela insere item que é uma transacao no DOM
 const init = () => {
+    transactionUl.innerHTML = ''; //limpar para nao repetir todo conteudo do objeto
     dummyTransactions.forEach(addTransactionIntoDOM);
     updateBalanceValues();
 }
 
 init();
+
+//gera uma propriedade de nummero aleatorio de 1 a 1000
+const generateID = () => Math.round(Math.random() * 1000);
+
+form.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const transactionName = inputTransactionName.value.trim();
+    const transactionAmount = inputTransactionAmount.value.trim();
+
+    if(transactionName === '' || transactionAmount === ''){
+        alert('Por favor, preencha tanto o nome quanto o valor da transação');
+        return;
+    }
+
+    const transaction = { 
+        id: generateID(), 
+        name: transactionName, 
+        amount: Number(transactionAmount) //poderiamos colocar o operador +, ficando +transactionAmount, que significa unario que converte string em numero 
+    };
+
+    //inserir ultimo item do array
+    dummyTransactions.push(transaction);
+
+    //adicionar item na lista de transacoes e atualizar os valores da receita e despesa
+    init();
+
+    //limpar os inputs
+    inputTransactionName.value = '';
+    inputTransactionAmount.value = '';
+});
