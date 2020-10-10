@@ -6,16 +6,17 @@ const form = document.querySelector("#form");
 const inputTransactionName = document.querySelector("#text");
 const inputTransactionAmount = document.querySelector("#amount");
 
-let dummyTransactions = [
-    {id: 1, name: 'Bolo de brigadeiro', amount: -20},
-    {id: 2, name: 'Salário', amount: 300},
-    {id: 3, name: 'Torta de frango', amount: -10},
-    {id: 4, name: 'Violão', amount: 150}
-]
+//Existe uma API no browser (WEB STORE API) que permite que sejam armazenadas e persista dados no browser do usuario
+const localStorageTransactions = JSON.parse(localStorage
+    .getItem('transaction'));
+let transactions = localStorage
+    .getItem('transaction') !== null ? localStorageTransactions : []; 
 
 const removeTransaction = ID => {
-    dummyTransactions = dummyTransactions.filter(transaction => transaction.id !== ID);
-    init();
+    transactions = transactions
+        .filter(transaction => transaction.id !== ID);
+        updateLocalStorage();
+        init();
 }
 
 const addTransactionIntoDOM = transaction => {
@@ -37,7 +38,7 @@ const addTransactionIntoDOM = transaction => {
 }
 
 const updateBalanceValues = () => {
-    const transactionAmounts = dummyTransactions
+    const transactionAmounts = transactions
         .map(transaction => transaction.amount);
     const total = transactionAmounts
         .reduce((accumulator, transaction) => accumulator + transaction, 0)
@@ -63,11 +64,16 @@ const updateBalanceValues = () => {
 //itera pelos arrays das transacoes, e para cada item desse array ela insere item que é uma transacao no DOM
 const init = () => {
     transactionUl.innerHTML = ''; //limpar para nao repetir todo conteudo do objeto
-    dummyTransactions.forEach(addTransactionIntoDOM);
+    transactions.forEach(addTransactionIntoDOM);
     updateBalanceValues();
 }
 
 init();
+
+//Função que salva no localStorage, no formato chave e valor, similiar a um objeto
+const updateLocalStorage = () => {
+    localStorage.setItem('transaction', JSON.stringify(transactions));
+}
 
 //gera uma propriedade de nummero aleatorio de 1 a 1000
 const generateID = () => Math.round(Math.random() * 1000);
@@ -90,10 +96,12 @@ form.addEventListener("submit", event => {
     };
 
     //inserir ultimo item do array
-    dummyTransactions.push(transaction);
+    transactions.push(transaction);
 
     //adicionar item na lista de transacoes e atualizar os valores da receita e despesa
     init();
+
+    updateLocalStorage();
 
     //limpar os inputs
     inputTransactionName.value = '';
