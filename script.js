@@ -6,11 +6,13 @@ const form = document.querySelector("#form");
 const inputTransactionName = document.querySelector("#text");
 const inputTransactionAmount = document.querySelector("#amount");
 
+
 //Existe uma API no browser (WEB STORE API) que permite que sejam armazenadas e persista dados no browser do usuario
 const localStorageTransactions = JSON.parse(localStorage
     .getItem('transaction'));
 let transactions = localStorage
     .getItem('transaction') !== null ? localStorageTransactions : []; 
+
 
 const removeTransaction = ID => {
     transactions = transactions
@@ -37,29 +39,37 @@ const addTransactionIntoDOM = transaction => {
     transactionUl.append(li);
 }
 
+
+//valor das despesas
+const getExpanse = transactionAmounts => Math.abs(transactionAmounts
+    .filter(value => value < 0)
+    .reduce((accumulator, value) => accumulator + value, 0))
+    .toFixed(2);
+
+
+//valor das receitas
+const getIncome = transactionAmounts => transactionAmounts
+    .filter(values => values > 0)
+    .reduce((accumulator, value) => accumulator + value, 0)
+    .toFixed(2);
+
+
+const getTotal = transactionAmounts => transactionAmounts
+    .reduce((accumulator, transaction) => accumulator + transaction, 0)
+    .toFixed(2);
+
+
 const updateBalanceValues = () => {
-    const transactionAmounts = transactions
-        .map(transaction => transaction.amount);
-    const total = transactionAmounts
-        .reduce((accumulator, transaction) => accumulator + transaction, 0)
-        .toFixed(2);
-
-    //valor das receitas
-    const income = transactionAmounts
-        .filter(values => values > 0)
-        .reduce((accumulator, value) => accumulator + value, 0)
-        .toFixed(2);
-
-    //valor das despesas
-    const expanse = Math.abs(transactionAmounts
-        .filter(value => value < 0)
-        .reduce((accumulator, value) => accumulator + value, 0))
-        .toFixed(2);
+    const transactionAmounts = transactions.map(transaction => transaction.amount);
+    const total = getTotal(transactionAmounts);
+    const income = getIncome(transactionAmounts); 
+    const expanse = getExpanse(transactionAmounts); 
     
     balanceDisplay.textContent = `R$ ${total}`;
     incomeDisplay.textContent = `R$ ${income}`;
     expanseDisplay.textContent = `R$ ${expanse}`;
 }
+
 
 //itera pelos arrays das transacoes, e para cada item desse array ela insere item que é uma transacao no DOM
 const init = () => {
@@ -68,42 +78,53 @@ const init = () => {
     updateBalanceValues();
 }
 
+
 init();
+
 
 //Função que salva no localStorage, no formato chave e valor, similiar a um objeto
 const updateLocalStorage = () => {
     localStorage.setItem('transaction', JSON.stringify(transactions));
 }
 
+
 //gera uma propriedade de nummero aleatorio de 1 a 1000
 const generateID = () => Math.round(Math.random() * 1000);
 
-form.addEventListener("submit", event => {
-    event.preventDefault();
 
+//inserir ultimo item do array
+const addToTransactionsArray = (transactionName, transactionAmount) => {
+    transactions.push({
+        id: generateID(), 
+        name: transactionName, 
+        amount: Number(transactionAmount) //poderiamos colocar o operador +, ficando +transactionAmount, que significa unario que converte string em numero 
+    }); 
+};
+
+
+//limpar os inputs
+const cleanInputs = () => {
+    inputTransactionName.value = '';
+    inputTransactionAmount.value = '';
+};
+
+
+const handleFormSubmit = event => {
+    event.preventDefault();
     const transactionName = inputTransactionName.value.trim();
     const transactionAmount = inputTransactionAmount.value.trim();
+    const isSomeInputEmpty = transactionName === '' || transactionAmount === '';
 
-    if(transactionName === '' || transactionAmount === ''){
+    if (isSomeInputEmpty) {
         alert('Por favor, preencha tanto o nome quanto o valor da transação');
         return;
     }
 
-    const transaction = { 
-        id: generateID(), 
-        name: transactionName, 
-        amount: Number(transactionAmount) //poderiamos colocar o operador +, ficando +transactionAmount, que significa unario que converte string em numero 
-    };
-
-    //inserir ultimo item do array
-    transactions.push(transaction);
-
-    //adicionar item na lista de transacoes e atualizar os valores da receita e despesa
-    init();
-
+    addToTransactionsArray(transactionName, transactionAmount);
+    init(); //adicionar item na lista de transacoes e atualizar os valores da receita e despesa
     updateLocalStorage();
+    cleanInputs();
+};
 
-    //limpar os inputs
-    inputTransactionName.value = '';
-    inputTransactionAmount.value = '';
-});
+
+form.addEventListener("submit", handleFormSubmit)
