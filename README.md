@@ -1,2 +1,6 @@
-## **_Financial Control with pure JavaScript_**
-![projeto](https://user-images.githubusercontent.com/60439056/95685195-c453eb00-0bcc-11eb-943d-90d4c8164ea9.PNG)
+### **_Financial Control with pure JavaScript_**
+
+![finCtrl](https://github.com/renanflow/Financial-Control-with-pure-JavaScript/blob/master/financialContr.gif)
+
+🔨Code made using good practices and refactoring for easy understanding and maintenance; <br>
+🚀 Concepts used: mapping (map, reduce), LocalStoge, web store API.
